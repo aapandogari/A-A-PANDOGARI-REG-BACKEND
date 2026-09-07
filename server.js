@@ -212,6 +212,22 @@ require("./routes/member")
 );
 
 
+app.use(
+  
+"/api/verify",
+
+require("./routes/verify")
+  
+);
+
+
+app.use(
+
+"/api/registration",
+
+requre("./routes/registration")
+  
+);
 
 
 
