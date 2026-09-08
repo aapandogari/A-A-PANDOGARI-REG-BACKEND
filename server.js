@@ -21,7 +21,7 @@ require("path");
 
 
 const sequelize =
-require("../config/database");
+require("./config/database");
 
 
 
