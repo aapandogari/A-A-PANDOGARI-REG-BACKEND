@@ -21,7 +21,7 @@ require("path");
 
 
 const sequelize =
-require("./config/database");
+require("../config/database");
 
 
 
@@ -206,43 +206,43 @@ console.error(error.message);
 
 loadRoute(
 "/api/core-team",
-"./routes/coreTeam"
+"../routes/coreTeam"
 );
 
 
 loadRoute(
 "/api/admin",
-"./routes/admin"
+"../routes/admin"
 );
 
 
 loadRoute(
 "/api/auth",
-"./routes/auth"
+"../routes/auth"
 );
 
 
 loadRoute(
 "/api/status",
-"./routes/status"
+"../routes/status"
 );
 
 
 loadRoute(
 "/api/member",
-"./routes/member"
+"../routes/member"
 );
 
 
 loadRoute(
 "/api/verify",
-"./routes/verify"
+"../routes/verify"
 );
 
 
 loadRoute(
 "/api/registration",
-"./routes/registration"
+"../routes/registration"
 );
 
 
