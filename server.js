@@ -206,43 +206,43 @@ console.error(error.message);
 
 loadRoute(
 "/api/core-team",
-"../routes/coreTeam"
+"./routes/coreTeam"
 );
 
 
 loadRoute(
 "/api/admin",
-"../routes/admin"
+"./routes/admin"
 );
 
 
 loadRoute(
 "/api/auth",
-"../routes/auth"
+"./routes/auth"
 );
 
 
 loadRoute(
 "/api/status",
-"../routes/status"
+"./routes/status"
 );
 
 
 loadRoute(
 "/api/member",
-"../routes/member"
+"./routes/member"
 );
 
 
 loadRoute(
 "/api/verify",
-"../routes/verify"
+"./routes/verify"
 );
 
 
 loadRoute(
 "/api/registration",
-"../routes/registration"
+"./routes/registration"
 );
 
 
@@ -266,7 +266,31 @@ message:
 });
 
 
+console.log(`
+====================================
+AAP CORE TEAM BACKEND
+====================================
 
+Environment:
+${process.env.NODE_ENV || "development"}
+
+Port:
+${PORT}
+
+Database:
+Connecting...
+
+Routes:
+✔ Core Team
+✔ Admin
+✔ Auth
+✔ Status
+✔ Member
+✔ Verify
+✔ Registration
+
+====================================
+`);
 
 
 
