@@ -154,6 +154,48 @@ error
 });
 
 
+// ===============================
+// ROUTE LOADER
+// ===============================
+
+
+function loadRoute(path, file){
+
+try{
+
+
+app.use(
+
+path,
+
+require(file)
+
+);
+
+
+console.log(
+`✅ ROUTE CONNECTED: ${path}`
+);
+
+
+}
+
+catch(error){
+
+
+console.error(
+`❌ ROUTE FAILED: ${path}`
+);
+
+
+console.error(error.message);
+
+
+}
+
+}
+
+
 
 
 
@@ -162,71 +204,45 @@ error
 // ===============================
 
 
-
-app.use(
-
+loadRoute(
 "/api/core-team",
-
-require("./routes/coreTeam")
-
+"./routes/coreTeam"
 );
 
 
-
-app.use(
-
+loadRoute(
 "/api/admin",
-
-require("./routes/admin")
-
+"./routes/admin"
 );
 
 
-
-app.use(
-
+loadRoute(
 "/api/auth",
-
-require("./routes/auth")
-
+"./routes/auth"
 );
 
 
-
-app.use(
-
+loadRoute(
 "/api/status",
-
-require("./routes/status")
-
+"./routes/status"
 );
 
 
-
-app.use(
-
+loadRoute(
 "/api/member",
-
-require("./routes/member")
-
+"./routes/member"
 );
 
 
-app.use(
-  
+loadRoute(
 "/api/verify",
-
-require("./routes/verify")
-  
+"./routes/verify"
 );
 
 
-app.use(
-
+loadRoute(
 "/api/registration",
-
-requre("./routes/registration")
-  
+"./routes/registration"
 );
 
 
