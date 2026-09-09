@@ -1,69 +1,46 @@
-const AWS = require("aws-sdk");
-
-
-AWS.config.update({
-
-accessKeyId:
-process.env.AWS_ACCESS_KEY_ID,
-
-
-secretAccessKey:
-process.env.AWS_SECRET_ACCESS_KEY,
-
-
-region:
-process.env.AWS_REGION
-
-});
-
+const {
+PutObjectCommand
+} = require("@aws-sdk/client-s3");
 
 
 const s3 =
-new AWS.S3();
+require("../config/s3");
 
 
 
-async function uploadFile(
-file,
-folder
-){
+async function uploadToS3(file, folder){
 
 
-const params={
+const key =
+`${folder}/${Date.now()}-${file.originalname}`;
 
+
+
+await s3.send(
+
+new PutObjectCommand({
 
 Bucket:
 process.env.AWS_BUCKET_NAME,
 
-
-Key:
-`${folder}/${Date.now()}-${file.originalname}`,
-
+Key:key,
 
 Body:
 file.buffer,
 
-
 ContentType:
 file.mimetype
 
+})
 
-
-};
-
-
-
-const result =
-await s3.upload(params).promise();
+);
 
 
 
-return result.Location;
+return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 
 
 }
 
 
-
-module.exports =
-uploadFile;
+module.exports = uploadToS3;
