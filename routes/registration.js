@@ -6,8 +6,8 @@ const multer =
 require("multer");
 
 
-const Member =
-require("../models/Member");
+const OfficialMember =
+require("../models/OfficialMember");
 
 
 
@@ -81,7 +81,7 @@ try{
 
 
 const count =
-await Member.countDocuments();
+await OfficialMember.countDocuments();
 
 
 const memberID =

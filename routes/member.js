@@ -3,7 +3,7 @@ require("express").Router();
 
 
 const Member =
-require("../models/Member");
+require("../models/OfficialMember");
 
 
 const generateQR =

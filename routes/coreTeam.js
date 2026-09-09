@@ -6,58 +6,15 @@ require("../models/CoreTeamApplication");
 const upload =
 require("../middleware/upload");
 
-const cloudinary =
-require("../config/cloudinary");
+const uploadToS3 =
+require("../services/uploadService");
 
 
 
 // ===============================
-// CLOUDINARY UPLOAD FUNCTION
+//    AWS S3 UPLOAD HANDLING
 // ===============================
 
-function uploadToCloudinary(file, folder){
-
-return new Promise((resolve,reject)=>{
-
-
-const stream =
-cloudinary.uploader.upload_stream(
-
-{
-
-folder:folder,
-
-resource_type:"auto"
-
-},
-
-(error,result)=>{
-
-if(error){
-
-reject(error);
-
-}
-
-else{
-
-resolve(result.secure_url);
-
-}
-
-}
-
-);
-
-
-
-stream.end(file.buffer);
-
-
-});
-
-
-}
 
 
 
@@ -111,16 +68,15 @@ req.files &&
 req.files.selfie
 ){
 
-
 selfieURL =
-await uploadToCloudinary(
+await uploadToS3(
 
 req.files.selfie[0],
 
-"aap/core-team/selfies"
+"selfies"
 
 );
-
+  
 
 }
 
@@ -136,11 +92,11 @@ req.files.document
 
 
 documentURL =
-await uploadToCloudinary(
+await uploadToS3(
 
 req.files.document[0],
 
-"aap/core-team/documents"
+"documents"
 
 );
 
