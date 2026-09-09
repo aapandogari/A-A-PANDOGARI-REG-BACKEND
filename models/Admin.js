@@ -74,5 +74,8 @@ timestamps:true
 
 );
 
+const PORT =
+process.env.PORT || 5000;
 
-module.exports=Admin;PORT
+
+module.exports=Admin;
