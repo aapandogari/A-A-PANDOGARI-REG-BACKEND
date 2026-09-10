@@ -197,6 +197,10 @@ console.error(error.message);
 
 
 
+console.log("AWS REGION:", process.env.AWS_REGION);
+console.log("AWS BUCKET:", process.env.AWS_BUCKET_NAME);
+console.log("AWS KEY EXISTS:", !!process.env.AWS_ACCESS_KEY_ID);
+console.log("AWS SECRET EXISTS:", !!process.env.AWS_SECRET_ACCESS_KEY);
 
 
 // ===============================
