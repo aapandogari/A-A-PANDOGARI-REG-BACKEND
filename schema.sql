@@ -383,3 +383,38 @@ ON official_members(team_id);
 CREATE INDEX IF NOT EXISTS idx_member_status
 
 ON official_members(status);
+
+
+-- =========================
+--   COMPANY SETTINGS 
+-- =========================
+
+
+CREATE TABLE company_settings (
+
+id SERIAL PRIMARY KEY,
+
+company_name VARCHAR(255)
+DEFAULT 'AL-AWWAL PANDOGARI ECOSYSTEM',
+
+ceo_name VARCHAR(255) NOT NULL,
+
+ceo_phone VARCHAR(50) NOT NULL,
+
+company_email VARCHAR(255),
+
+signature_url TEXT,
+
+logo_url TEXT,
+
+primary_color VARCHAR(20)
+DEFAULT '#f5b700',
+
+secondary_color VARCHAR(20)
+DEFAULT '#001b1e',
+
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
