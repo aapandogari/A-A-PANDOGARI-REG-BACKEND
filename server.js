@@ -122,8 +122,6 @@ __dirname,
 
 
 
-
-
 // ===============================
 // DATABASE
 // ===============================
@@ -131,12 +129,16 @@ __dirname,
 
 sequelize.authenticate()
 
-.then(()=>{
+.then(async()=>{
 
 
 console.log(
 "Database connected successfully"
 );
+
+
+
+await require("./utils/createCompanySettings")();
 
 
 
