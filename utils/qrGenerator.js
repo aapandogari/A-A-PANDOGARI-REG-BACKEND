@@ -1,15 +1,21 @@
-
-const QRCode =
-require("qrcode");
+const QRCode = require("qrcode");
 
 
-async function createQR(data){
+async function generateQR(data){
+
+const qr =
+await QRCode.toDataURL(
+data,
+{
+width:300,
+margin:2
+}
+);
 
 
-return await QRCode.toDataURL(data);
-
+return qr;
 
 }
 
 
-module.exports=createQR;
+module.exports = generateQR;
