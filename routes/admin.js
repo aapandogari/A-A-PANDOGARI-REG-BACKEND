@@ -1,5 +1,7 @@
 const router = require("express").Router();
 
+const sequelize =
+require("../config/database");
 
 const CoreTeamApplication =
 require("../models/CoreTeamApplication");
@@ -21,6 +23,138 @@ const sendApprovalEmail =
 require("../services/emailService");
 
 
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const Admin = require("../models/Admin");
+
+
+const DigitalCard =
+require("../models/DigitalCard");
+
+const generateQR =
+require("../utils/qrGenerator");
+
+const createCard =
+require("../services/cardGenerator");
+
+const uploadToS3 =
+require("../services/uploadService");
+
+
+// ADMIN LOGIN
+
+router.post(
+"/login",
+async(req,res)=>{
+
+try{
+
+
+const {
+email,
+password
+}=req.body;
+
+
+
+const admin =
+await Admin.findOne({
+
+where:{
+email
+}
+
+});
+
+
+
+if(!admin){
+
+return res.status(401)
+.json({
+
+message:"Invalid email or password"
+
+});
+
+}
+
+
+
+const match =
+await bcrypt.compare(
+
+password,
+
+admin.password_hash
+
+);
+
+
+
+if(!match){
+
+return res.status(401)
+.json({
+
+message:"Invalid email or password"
+
+});
+
+}
+
+
+
+const token =
+jwt.sign(
+
+{
+
+id:admin.id,
+
+email:admin.email,
+
+role:admin.role
+
+},
+
+process.env.JWT_SECRET,
+
+{
+
+expiresIn:"24h"
+
+}
+
+);
+
+
+
+res.json({
+
+success:true,
+
+token
+
+});
+
+
+}
+
+
+catch(error){
+
+res.status(500)
+.json({
+
+message:error.message
+
+});
+
+}
+
+
+});
 
 
 
@@ -122,11 +256,7 @@ message:error.message
 
 
 
-
-
-
-// APPROVE APPLICATION
-
+//APPROVE APPLICATION
 
 router.patch(
 
@@ -137,17 +267,29 @@ auth,
 async(req,res)=>{
 
 
+const transaction =
+await sequelize.transaction();
+
+
 try{
 
 
 const application =
 await CoreTeamApplication.findByPk(
-req.params.id
+
+req.params.id,
+
+{
+transaction
+}
+
 );
 
 
 
 if(!application){
+
+await transaction.rollback();
 
 return res.status(404)
 .json({
@@ -161,7 +303,11 @@ message:"Application not found"
 
 
 
-if(application.application_status==="Approved"){
+if(
+application.application_status === "Approved"
+){
+
+await transaction.rollback();
 
 return res.status(400)
 .json({
@@ -176,74 +322,132 @@ message:"Already approved"
 
 
 
-const lastMember =
-await OfficialMember.findOne({
-
-order:[
-["id","DESC"]
-]
-
-});
-
-
-
-let nextNumber=1;
-
-
-if(lastMember){
-
-nextNumber =
-lastMember.id + 1;
-
-}
-
-
-
 const memberID =
-"AAP-CORE-"+
-String(nextNumber)
-.padStart(5,"0");
+
+"AAP-CORE-" +
+
+Date.now()
+.toString()
+.slice(-6);
 
 
 
 
 
 
-await application.update({
+await application.update(
+
+{
 
 application_status:"Approved",
 
-admin_note:req.body.note || ""
+admin_note:
+req.body.note || ""
 
-});
+},
+
+{
+transaction
+}
+
+);
 
 
 
 
 
-await OfficialMember.create({
 
-member_id:memberID,
+
+const member =
+
+await OfficialMember.create(
+
+{
+
+member_id:
+memberID,
+
 
 application_id:
 application.id,
 
+
 full_name:
 application.full_name,
+
 
 team_id:
 application.team_id,
 
+
 username:
 application.team_username,
+
 
 role:
 application.preferred_role,
 
+
 selfie_url:
 application.selfie_url
 
-});
+
+},
+
+{
+transaction
+}
+
+);
+
+
+
+
+
+
+
+await ApplicationLog.create(
+
+{
+
+application_id:
+application.id,
+
+
+admin_id:
+req.admin?.id,
+
+
+action:
+"Application Approved",
+
+
+note:
+req.body.note || ""
+
+},
+
+{
+transaction
+}
+
+);
+
+
+
+
+
+
+await transaction.commit();
+
+
+
+
+
+// EMAIL AFTER DATABASE SUCCESS
+
+
+try{
 
 
 await sendApprovalEmail(
@@ -257,22 +461,22 @@ memberID
 );
 
 
+}
 
-await ApplicationLog.create({
+catch(emailError){
 
-application_id:
-application.id,
 
-admin_id:
-req.admin?.id,
+console.log(
 
-action:
-"Application Approved",
+"Approval email failed:",
 
-note:
-req.body.note || ""
+emailError.message
 
-});
+);
+
+
+}
+
 
 
 
@@ -283,7 +487,32 @@ res.json({
 
 success:true,
 
-message:"Application Approved"
+message:
+"Application Approved",
+
+memberID
+
+});
+
+
+
+}
+
+catch(error){
+
+
+
+await transaction.rollback();
+
+
+console.log(error);
+
+
+
+res.status(500)
+.json({
+
+message:error.message
 
 });
 
@@ -291,10 +520,131 @@ message:"Application Approved"
 }
 
 
+});
+
+
+
+
+// GENERATE ID CARD
+
+
+router.post(
+
+"/members/:id/generate-card",
+
+auth,
+
+async(req,res)=>{
+
+
+try{
+
+
+const member =
+await OfficialMember.findByPk(
+req.params.id
+);
+
+
+
+if(!member){
+
+return res.status(404)
+.json({
+
+message:"Member not found"
+
+});
+
+}
+
+
+
+
+const qrURL =
+await generateQR(
+
+`https://a-a-pandogari-registration-form.vercel.app/verify/${member.member_id}`
+
+);
+
+
+
+const cardBuffer =
+await createCard({
+
+full_name:
+member.full_name,
+
+member_id:
+member.member_id,
+
+team:
+member.team_id,
+
+role:
+member.role
+
+});
+
+
+
+const cardURL =
+await uploadToS3(
+
+{
+
+buffer:cardBuffer,
+
+originalname:
+`${member.member_id}.png`,
+
+mimetype:
+"image/png"
+
+},
+
+"cards"
+
+);
+
+
+
+
+
+await DigitalCard.create({
+
+member_id:
+member.id,
+
+qr_code:
+qrURL,
+
+card_url:
+cardURL
+
+});
+
+
+
+
+
+res.json({
+
+success:true,
+
+message:"ID Card Generated",
+
+cardURL
+
+});
+
+
+}
+
 catch(error){
 
 console.log(error);
-
 
 res.status(500)
 .json({
@@ -307,11 +657,6 @@ message:error.message
 
 
 });
-
-
-
-
-
 
 
 
