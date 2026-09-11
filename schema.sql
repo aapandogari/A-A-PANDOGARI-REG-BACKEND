@@ -1,32 +1,29 @@
 -- ==========================================
 -- AL-AWWAL PANDOGARI ECOSYSTEM
--- CORE TEAM MANAGEMENT DATABASE
--- PostgreSQL Railway Ready
+-- CORE TEAM DATABASE
+-- POSTGRESQL + SEQUELIZE READY
 -- ==========================================
 
 
--- ==========================
--- TEAMS TABLE
--- ==========================
+CREATE TABLE IF NOT EXISTS teams (
 
-CREATE TABLE teams (
+id SERIAL PRIMARY KEY,
 
-    id SERIAL PRIMARY KEY,
+team_name VARCHAR(100)
+UNIQUE NOT NULL,
 
-    team_name VARCHAR(100)
-    UNIQUE NOT NULL,
+description TEXT,
 
-    description TEXT,
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    created_at TIMESTAMP
-    DEFAULT CURRENT_TIMESTAMP
+updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
 
 
 INSERT INTO teams
-(team_name, description)
+(team_name,description)
 
 VALUES
 
@@ -38,42 +35,46 @@ VALUES
 (
 'SIDRA CORE TEAM',
 'Sidra ecosystem contribution and community team'
-);
+)
+
+ON CONFLICT(team_name)
+DO NOTHING;
+
 
 
 
 -- ==========================
--- ADMINS TABLE
+-- ADMINS
 -- ==========================
 
-CREATE TABLE admins (
 
-    id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS admins (
 
-
-    username VARCHAR(100)
-    UNIQUE NOT NULL,
+id SERIAL PRIMARY KEY,
 
 
-    email VARCHAR(150)
-    UNIQUE NOT NULL,
+username VARCHAR(100)
+UNIQUE NOT NULL,
 
 
-    password_hash TEXT NOT NULL,
+email VARCHAR(150)
+UNIQUE NOT NULL,
 
 
-    role VARCHAR(50)
-    DEFAULT 'ADMIN',
+password_hash TEXT NOT NULL,
 
 
-    created_at TIMESTAMP
-    DEFAULT CURRENT_TIMESTAMP,
+role VARCHAR(50)
+DEFAULT 'ADMIN',
 
 
-    updated_at TIMESTAMP
-    DEFAULT CURRENT_TIMESTAMP
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+
+updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
+
 
 
 
@@ -84,100 +85,82 @@ CREATE TABLE admins (
 -- ==========================
 
 
-CREATE TABLE core_team_applications (
+CREATE TABLE IF NOT EXISTS core_team_applications (
+
+id SERIAL PRIMARY KEY,
 
 
-    id SERIAL PRIMARY KEY,
+application_id VARCHAR(50)
+UNIQUE NOT NULL,
 
 
-    application_id VARCHAR(50)
-    UNIQUE NOT NULL,
+full_name VARCHAR(150)
+NOT NULL,
 
 
-    full_name VARCHAR(150)
-    NOT NULL,
+date_of_birth DATE,
 
 
-    date_of_birth DATE,
+gender VARCHAR(20),
 
 
-    gender VARCHAR(20),
+country VARCHAR(100),
 
 
-    country VARCHAR(100),
+state VARCHAR(100),
 
 
-    state VARCHAR(100),
+address TEXT,
 
 
-    address TEXT,
+phone VARCHAR(30),
 
 
-    phone VARCHAR(30),
+email VARCHAR(150),
 
 
-    email VARCHAR(150),
+team_id INTEGER
+REFERENCES teams(id),
 
 
-
-    team_id INTEGER
-    REFERENCES teams(id),
+team_username VARCHAR(100),
 
 
-
-    team_username VARCHAR(100),
-
+username_type VARCHAR(50),
 
 
-    username_type VARCHAR(50),
+preferred_role VARCHAR(100),
 
 
-
-    preferred_role VARCHAR(100),
-
+skills TEXT,
 
 
-    skills TEXT,
+experience TEXT,
 
 
-    experience TEXT,
+contribution TEXT,
 
 
-    contribution TEXT,
+selfie_url TEXT,
 
 
-
-    selfie_url TEXT,
-
+identity_document_url TEXT,
 
 
-    identity_document_url TEXT,
+next_of_kin JSONB,
 
 
-
-    next_of_kin JSONB,
-
-
-
-    application_status VARCHAR(30)
-
-    DEFAULT 'Pending',
+application_status VARCHAR(30)
+DEFAULT 'Pending',
 
 
-
-    admin_note TEXT,
-
+admin_note TEXT,
 
 
-    created_at TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP,
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
 
-
-    updated_at TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP
+updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
@@ -187,77 +170,50 @@ CREATE TABLE core_team_applications (
 
 
 -- ==========================
--- OFFICIAL CORE TEAM MEMBERS
+-- OFFICIAL MEMBERS
 -- ==========================
 
 
-CREATE TABLE official_members (
+CREATE TABLE IF NOT EXISTS official_members (
+
+id SERIAL PRIMARY KEY,
 
 
-    id SERIAL PRIMARY KEY,
+member_id VARCHAR(50)
+UNIQUE NOT NULL,
 
 
-
-    member_id VARCHAR(50)
-
-    UNIQUE NOT NULL,
-
-
-
-    application_id INTEGER
-
-    NOT NULL
-
-    REFERENCES core_team_applications(id)
-
-    ON DELETE CASCADE,
+application_id INTEGER
+NOT NULL
+REFERENCES core_team_applications(id)
+ON DELETE CASCADE,
 
 
-
-    full_name VARCHAR(150)
-
-    NOT NULL,
+full_name VARCHAR(150)
+NOT NULL,
 
 
-
-    team_id INTEGER
-
-    REFERENCES teams(id),
+team_id INTEGER
+REFERENCES teams(id),
 
 
-
-    username VARCHAR(100),
-
+username VARCHAR(100),
 
 
-    role VARCHAR(100),
+role VARCHAR(100),
 
 
-
-    selfie_url TEXT,
-
+selfie_url TEXT,
 
 
-    status VARCHAR(50)
-
-    DEFAULT 'ACTIVE',
-
+status VARCHAR(50)
+DEFAULT 'ACTIVE',
 
 
-    joined_date TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP,
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
 
-    created_at TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP,
-
-
-    updated_at TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP
-
+updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
@@ -268,43 +224,37 @@ CREATE TABLE official_members (
 
 
 -- ==========================
--- APPLICATION LOG HISTORY
+-- APPLICATION LOGS
 -- ==========================
 
 
-CREATE TABLE application_logs (
+CREATE TABLE IF NOT EXISTS application_logs (
+
+id SERIAL PRIMARY KEY,
 
 
-    id SERIAL PRIMARY KEY,
+application_id INTEGER
+NOT NULL
+REFERENCES core_team_applications(id)
+ON DELETE CASCADE,
 
 
-
-    application_id INTEGER
-
-    REFERENCES core_team_applications(id)
-
-    ON DELETE CASCADE,
+admin_id INTEGER
+NOT NULL
+REFERENCES admins(id),
 
 
-
-    admin_id INTEGER
-
-    REFERENCES admins(id),
+action VARCHAR(100)
+NOT NULL,
 
 
-
-    action VARCHAR(100),
-
+note TEXT,
 
 
-    note TEXT,
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
 
-
-    created_at TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP
-
+updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
@@ -315,35 +265,27 @@ CREATE TABLE application_logs (
 
 
 -- ==========================
--- MEMBER ACTIVITY TRACKING
+-- MEMBER ACTIVITY
 -- ==========================
 
 
-CREATE TABLE member_activity (
+CREATE TABLE IF NOT EXISTS member_activity (
+
+id SERIAL PRIMARY KEY,
 
 
-    id SERIAL PRIMARY KEY,
+member_id INTEGER
+REFERENCES official_members(id)
+ON DELETE CASCADE,
 
 
-
-    member_id INTEGER
-
-    REFERENCES official_members(id)
-
-    ON DELETE CASCADE,
+activity TEXT NOT NULL,
 
 
-
-    activity TEXT
-
-    NOT NULL,
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
 
-
-    created_at TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP
-
+updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
@@ -358,29 +300,20 @@ CREATE TABLE member_activity (
 -- ==========================
 
 
-CREATE TABLE verification_logs (
+CREATE TABLE IF NOT EXISTS verification_logs (
+
+id SERIAL PRIMARY KEY,
 
 
-    id SERIAL PRIMARY KEY,
+member_id INTEGER
+REFERENCES official_members(id)
+ON DELETE CASCADE,
 
 
-
-    member_id INTEGER
-
-    REFERENCES official_members(id)
-
-    ON DELETE CASCADE,
+ip_address VARCHAR(100),
 
 
-
-    ip_address VARCHAR(100),
-
-
-
-    verified_at TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP
-
+verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
@@ -391,37 +324,30 @@ CREATE TABLE verification_logs (
 
 
 -- ==========================
--- DIGITAL MEMBER CARDS
+-- DIGITAL CARDS
 -- ==========================
 
 
-CREATE TABLE digital_cards (
+CREATE TABLE IF NOT EXISTS digital_cards (
+
+id SERIAL PRIMARY KEY,
 
 
-    id SERIAL PRIMARY KEY,
+member_id INTEGER
+REFERENCES official_members(id)
+ON DELETE CASCADE,
 
 
-
-    member_id INTEGER
-
-    REFERENCES official_members(id)
-
-    ON DELETE CASCADE,
+qr_code TEXT,
 
 
-
-    qr_code TEXT,
-
+card_url TEXT,
 
 
-    card_url TEXT,
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
 
-
-    created_at TIMESTAMP
-
-    DEFAULT CURRENT_TIMESTAMP
-
+updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
@@ -429,29 +355,31 @@ CREATE TABLE digital_cards (
 
 
 
+
+
 -- ==========================
--- INDEXES FOR PERFORMANCE
+-- INDEXES
 -- ==========================
 
 
-CREATE INDEX idx_application_status
+CREATE INDEX IF NOT EXISTS idx_application_status
 
 ON core_team_applications(application_status);
 
 
 
-CREATE INDEX idx_application_team
+CREATE INDEX IF NOT EXISTS idx_application_team
 
 ON core_team_applications(team_id);
 
 
 
-CREATE INDEX idx_member_team
+CREATE INDEX IF NOT EXISTS idx_member_team
 
 ON official_members(team_id);
 
 
 
-CREATE INDEX idx_member_status
+CREATE INDEX IF NOT EXISTS idx_member_status
 
 ON official_members(status);
