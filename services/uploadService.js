@@ -7,8 +7,9 @@ const s3 =
 require("../config/s3");
 
 
-
 async function uploadToS3(file, folder){
+
+try{
 
 
 const key =
@@ -25,11 +26,9 @@ process.env.AWS_BUCKET_NAME,
 
 Key:key,
 
-Body:
-file.buffer,
+Body:file.buffer,
 
-ContentType:
-file.mimetype
+ContentType:file.mimetype
 
 })
 
@@ -38,6 +37,21 @@ file.mimetype
 
 
 return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+
+
+
+}
+
+catch(error){
+
+console.log(
+"AWS S3 Upload Error:",
+error
+);
+
+throw error;
+
+}
 
 
 }
