@@ -101,6 +101,31 @@ type:DataTypes.TEXT
 },
 
 
+id_card_front_url:{
+type:DataTypes.TEXT
+},
+
+
+id_card_back_url:{
+type:DataTypes.TEXT
+},
+
+
+qr_code:{
+type:DataTypes.TEXT
+},
+
+
+signature_url:{
+type:DataTypes.TEXT
+},
+
+
+issued_date:{
+type:DataTypes.DATE,
+defaultValue:DataTypes.NOW
+},
+  
 
 status:{
 
