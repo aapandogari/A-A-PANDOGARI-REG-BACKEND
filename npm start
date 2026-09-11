@@ -1,0 +1,17 @@
+                                             Table "public.company_settings"
+     Column      |            Type             | Collation | Nullable |                      Default                      
+-----------------+-----------------------------+-----------+----------+---------------------------------------------------
+ id              | integer                     |           | not null | nextval('company_settings_id_seq'::regclass)
+ company_name    | character varying(255)      |           |          | 'AL-AWWAL PANDOGARI ECOSYSTEM'::character varying
+ ceo_name        | character varying(255)      |           | not null | 
+ ceo_phone       | character varying(50)       |           | not null | 
+ company_email   | character varying(255)      |           |          | 
+ signature_url   | text                        |           |          | 
+ logo_url        | text                        |           |          | 
+ primary_color   | character varying(20)       |           |          | '#f5b700'::character varying
+ secondary_color | character varying(20)       |           |          | '#001b1e'::character varying
+ created_at      | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+ updated_at      | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+Indexes:
+    "company_settings_pkey" PRIMARY KEY, btree (id)
+
