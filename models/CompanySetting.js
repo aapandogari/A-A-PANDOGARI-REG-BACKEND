@@ -84,9 +84,11 @@ defaultValue:"#001b1e"
 
 {
     tableName:"company_settings",
+  
     timestamps:true,
 
     createdAt:"created_at",
+  
     updatedAt:"updated_at"
 }
 

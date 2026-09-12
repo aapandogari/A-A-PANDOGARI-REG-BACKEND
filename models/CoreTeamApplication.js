@@ -204,7 +204,11 @@ type:DataTypes.TEXT
 
 tableName:"core_team_applications",
 
-timestamps:true
+timestamps:true,
+
+createdAt:"created_at",
+
+updatedAt:"updated_at"
 
 }
 

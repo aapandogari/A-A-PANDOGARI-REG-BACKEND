@@ -3,11 +3,13 @@ const {DataTypes}=require("sequelize");
 const sequelize=require("../config/database");
 
 
+
 const Admin=sequelize.define(
 
 "Admin",
 
 {
+
 
 id:{
 
@@ -18,6 +20,7 @@ autoIncrement:true,
 primaryKey:true
 
 },
+
 
 
 username:{
@@ -31,6 +34,7 @@ allowNull:false
 },
 
 
+
 email:{
 
 type:DataTypes.STRING,
@@ -42,6 +46,7 @@ allowNull:false
 },
 
 
+
 password_hash:{
 
 type:DataTypes.TEXT,
@@ -49,6 +54,7 @@ type:DataTypes.TEXT,
 allowNull:false
 
 },
+
 
 
 role:{
@@ -65,9 +71,17 @@ defaultValue:"ADMIN"
 
 {
 
-tableName:"admins",
 
-timestamps:true
+tableName:"admin",
+
+
+timestamps:true,
+
+
+createdAt:"created_at",
+
+updatedAt:"updated_at"
+
 
 }
 
