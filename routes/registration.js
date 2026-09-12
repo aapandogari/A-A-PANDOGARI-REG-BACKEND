@@ -2,8 +2,8 @@ const router = require("express").Router();
 
 const multer = require("multer");
 
-const OfficialMember =
-require("../models/OfficialMember");
+const CoreTeamApplication =
+require("../models/CoreTeamApplication");
 
 
 const storage = multer.diskStorage({
@@ -13,7 +13,6 @@ destination(req,file,cb){
 cb(null,"uploads/");
 
 },
-
 
 filename(req,file,cb){
 
@@ -32,8 +31,8 @@ storage
 });
 
 
-
 router.post(
+
 "/",
 
 upload.fields([
@@ -57,14 +56,11 @@ async(req,res)=>{
 try{
 
 
-const total =
-await OfficialMember.count();
-
-
-const memberID =
-"AAP-CORE-" +
-String(total+1)
-.padStart(5,"0");
+const applicationID =
+"AAP-APP-" +
+Date.now()
+.toString()
+.slice(-8);
 
 
 
@@ -75,20 +71,69 @@ req.body.nextOfKin || "{}"
 
 
 
-const member =
-await OfficialMember.create({
+const application =
+await CoreTeamApplication.create({
 
-member_id:memberID,
+application_id:applicationID,
 
-full_name:req.body.fullName,
 
-username:
+full_name:
+req.body.fullName,
+
+
+date_of_birth:
+req.body.dob,
+
+
+gender:
+req.body.gender,
+
+
+country:
+req.body.country,
+
+
+state:
+req.body.state,
+
+
+address:
+req.body.address,
+
+
+phone:
+req.body.phone,
+
+
+email:
+req.body.email,
+
+
+team_username:
+
 req.body.piUsername ||
-req.body.sidraUsername,
+req.body.sidraUsername ||
+"",
 
-role:req.body.role,
+
+preferred_role:
+req.body.role,
+
+
+skills:
+req.body.skills,
+
+
+experience:
+req.body.experience,
+
+
+contribution:
+req.body.value,
+
 
 selfie_url:
+
 req.files?.selfie
 ?
 req.files.selfie[0].path
@@ -96,9 +141,23 @@ req.files.selfie[0].path
 null,
 
 
-status:"ACTIVE"
+identity_document_url:
+
+req.files?.document
+?
+req.files.document[0].path
+:
+null,
+
+
+next_of_kin:nextOfKin,
+
+
+application_status:"Pending"
+
 
 });
+
 
 
 
@@ -106,13 +165,14 @@ res.json({
 
 success:true,
 
-message:"Registration Successful",
+message:
+"Application submitted successfully",
 
-applicationID:member.id,
-
-memberID
+applicationID:
+application.application_id
 
 });
+
 
 
 }
@@ -120,12 +180,10 @@ memberID
 
 catch(error){
 
-
 console.log(error);
 
 
-res.status(500)
-.json({
+res.status(500).json({
 
 success:false,
 
