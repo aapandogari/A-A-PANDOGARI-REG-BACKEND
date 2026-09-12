@@ -72,7 +72,7 @@ defaultValue:"ADMIN"
 {
 
 
-tableName:"admin",
+tableName:"admins",
 
 
 timestamps:true,
