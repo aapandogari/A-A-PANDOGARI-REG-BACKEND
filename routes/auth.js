@@ -45,9 +45,14 @@ const admin =
 await Admin.findOne({
 
 where:{
-
+[require("sequelize").Op.or]:[
+{
 email:loginValue
-
+},
+{
+username:loginValue
+}
+]
 }
 
 });

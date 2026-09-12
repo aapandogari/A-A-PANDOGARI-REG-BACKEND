@@ -1,58 +1,35 @@
-const router =
-require("express").Router();
+const router = require("express").Router();
 
-
-const multer =
-require("multer");
-
+const multer = require("multer");
 
 const OfficialMember =
 require("../models/OfficialMember");
 
 
+const storage = multer.diskStorage({
 
-
-
-// File Upload Setup
-
-
-const storage =
-multer.diskStorage({
-
-destination:
-function(req,file,cb){
+destination(req,file,cb){
 
 cb(null,"uploads/");
 
 },
 
 
-filename:
-function(req,file,cb){
+filename(req,file,cb){
 
 cb(
 null,
-Date.now()
-+
-"-"
-+
-file.originalname
+Date.now()+"-"+file.originalname
 );
 
 }
 
-
 });
 
 
-
-const upload =
-multer({
+const upload = multer({
 storage
 });
-
-
-
 
 
 
@@ -80,56 +57,48 @@ async(req,res)=>{
 try{
 
 
-const count =
-await OfficialMember.countDocuments();
+const total =
+await OfficialMember.count();
 
 
 const memberID =
 "AAP-CORE-" +
-String(count+1)
+String(total+1)
 .padStart(5,"0");
 
 
 
+const nextOfKin =
+JSON.parse(
+req.body.nextOfKin || "{}"
+);
+
 
 
 const member =
-new Member({
+await OfficialMember.create({
 
+member_id:memberID,
 
-memberID,
+full_name:req.body.fullName,
 
-...req.body,
+username:
+req.body.piUsername ||
+req.body.sidraUsername,
 
-nextOfKin:
-JSON.parse(req.body.nextOfKin),
+role:req.body.role,
 
-
-selfie:
-
-req.files.selfie
+selfie_url:
+req.files?.selfie
 ?
 req.files.selfie[0].path
 :
-"",
+null,
 
 
-
-document:
-
-req.files.document
-?
-req.files.document[0].path
-:
-""
-
+status:"ACTIVE"
 
 });
-
-
-
-
-await member.save();
 
 
 
@@ -137,21 +106,22 @@ res.json({
 
 success:true,
 
+message:"Registration Successful",
 
-message:
-"Registration Successful",
-
+applicationID:member.id,
 
 memberID
-
 
 });
 
 
-
 }
 
+
 catch(error){
+
+
+console.log(error);
 
 
 res.status(500)
@@ -159,8 +129,7 @@ res.status(500)
 
 success:false,
 
-message:
-error.message
+message:error.message
 
 });
 
@@ -171,8 +140,4 @@ error.message
 });
 
 
-
-
-
-module.exports =
-router;
+module.exports = router;

@@ -63,9 +63,16 @@ const admin =
 await Admin.findOne({
 
 where:{
-email: loginValue
+[require("sequelize").Op.or]:[
+{
+email:loginValue
+},
+{
+username:loginValue
 }
-
+]
+}
+  
 });
 
   
@@ -774,7 +781,7 @@ const members =
 await OfficialMember.findAll({
 
 order:[
-["createdAt","DESC"]
+["created_at","DESC"]
 ]
 
 });
