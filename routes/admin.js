@@ -49,24 +49,26 @@ async(req,res)=>{
 
 try{
 
-
 const {
 email,
+username,
 password
 }=req.body;
 
+
+const loginValue = email || username;
 
 
 const admin =
 await Admin.findOne({
 
 where:{
-email
+email: loginValue
 }
 
 });
 
-
+  
 
 if(!admin){
 
@@ -172,7 +174,7 @@ const applications =
 await CoreTeamApplication.findAll({
 
 order:[
-["createdAt","DESC"]
+["created_at","DESC"]
 ]
 
 });
