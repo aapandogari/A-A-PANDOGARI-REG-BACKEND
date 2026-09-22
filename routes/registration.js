@@ -30,6 +30,17 @@ const upload = multer({
 storage
 });
 
+console.log(
+"===== NEW REGISTRATION ====="
+);
+
+console.log(
+req.body
+);
+
+console.log(
+req.files
+);
 
 router.post(
 
