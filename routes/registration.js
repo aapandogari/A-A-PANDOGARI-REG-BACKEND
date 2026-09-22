@@ -44,7 +44,7 @@ req.files
 
 router.post(
 
-"/",
+"/", async (req, res) => {
 
 upload.fields([
 
