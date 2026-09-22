@@ -46,8 +46,6 @@ process.env.PORT || 5000;
 // CORS CONFIGURATION
 // ===============================
 
-const cors = require("cors");
-
 app.use(cors({
     origin:[
         "https://a-a-pandogari-registration-form.vercel.app"
