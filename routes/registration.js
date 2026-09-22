@@ -8,17 +8,17 @@ require("../models/CoreTeamApplication");
 
 const storage = multer.diskStorage({
 
-destination(req,file,cb){
+destination(req, file, cb){
 
-cb(null,"uploads/");
+cb(null, "uploads/");
 
 },
 
-filename(req,file,cb){
+filename(req, file, cb){
 
 cb(
 null,
-Date.now()+"-"+file.originalname
+Date.now() + "-" + file.originalname
 );
 
 }
@@ -30,21 +30,13 @@ const upload = multer({
 storage
 });
 
-console.log(
-"===== NEW REGISTRATION ====="
-);
 
-console.log(
-req.body
-);
+console.log("===== NEW REGISTRATION ROUTE LOADED =====");
 
-console.log(
-req.files
-);
 
 router.post(
 
-"/", async (req, res) => {
+"/",
 
 upload.fields([
 
@@ -61,10 +53,16 @@ maxCount:1
 ]),
 
 
-async(req,res)=>{
+async (req, res) => {
 
 
-try{
+try {
+
+
+console.log("REGISTRATION BODY:", req.body);
+
+console.log("REGISTRATION FILES:", req.files);
+
 
 
 const applicationID =
@@ -85,7 +83,7 @@ req.body.nextOfKin || "{}"
 const application =
 await CoreTeamApplication.create({
 
-application_id:applicationID,
+application_id: applicationID,
 
 
 full_name:
@@ -161,14 +159,15 @@ req.files.document[0].path
 null,
 
 
-next_of_kin:nextOfKin,
+next_of_kin:
+nextOfKin,
 
 
-application_status:"Pending"
+application_status:
+"Pending"
 
 
 });
-
 
 
 
@@ -188,10 +187,10 @@ application.application_id
 
 }
 
-
 catch(error){
 
-console.log(error);
+
+console.log("REGISTRATION ERROR:", error);
 
 
 res.status(500).json({
