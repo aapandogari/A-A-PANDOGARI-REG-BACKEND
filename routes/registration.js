@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const router = require("express").Router();
 
 const multer = require("multer");
@@ -5,12 +8,18 @@ const multer = require("multer");
 const CoreTeamApplication =
 require("../models/CoreTeamApplication");
 
+const uploadDir = path.join(__dirname, "../uploads");
+
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
 
 const storage = multer.diskStorage({
 
-destination(req, file, cb){
+destination(req,file,cb){
 
-cb(null, "uploads/");
+cb(null, uploadDir);
 
 },
 
@@ -128,6 +137,7 @@ req.body.team === "SIDRA_CORE_TEAM"
 2
 :
 3,
+
   
 team_username:
 
@@ -200,21 +210,18 @@ application.application_id
 
 catch(error){
 
-
 console.log("REGISTRATION ERROR:", error);
-
 
 res.status(500).json({
 
 success:false,
 
-message:error.message
+message:"Registration failed",
+error:error.message
 
 });
 
-
 }
-
 
 });
 
