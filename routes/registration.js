@@ -118,6 +118,17 @@ email:
 req.body.email,
 
 
+team_id:
+req.body.team === "PI_CORE_TEAM"
+?
+1
+:
+req.body.team === "SIDRA_CORE_TEAM"
+?
+2
+:
+3,
+  
 team_username:
 
 req.body.piUsername ||
