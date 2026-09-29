@@ -40,6 +40,13 @@ VALUES
 ON CONFLICT(team_name)
 DO NOTHING;
 
+INSERT INTO teams (id, team_name, description, created_at)
+VALUES (
+3,
+'ALL',
+'All core team members including Pi and Sidra ecosystem teams',
+NOW()
+);
 
 
 
