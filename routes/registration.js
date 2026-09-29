@@ -1,25 +1,15 @@
 /*
 AL-AWWAL PANDOGARI ECOSYSTEM
 CORE TEAM REGISTRATION ROUTE
-AWS S3 READY
+AWS S3 SDK V3 READY
 */
 
 
-const router =
-require("express").Router();
+const router = require("express").Router();
 
+const multer = require("multer");
 
-const multer =
-require("multer");
-
-
-const multerS3 =
-require("multer-s3");
-
-
-const s3 =
-require("../config/s3");
-
+const uploadToS3 = require("../services/uploadService");
 
 const CoreTeamApplication =
 require("../models/CoreTeamApplication");
@@ -27,98 +17,25 @@ require("../models/CoreTeamApplication");
 
 
 console.log(
-"===== NEW REGISTRATION ROUTE LOADED (AWS S3) ====="
+"===== NEW REGISTRATION ROUTE LOADED (AWS S3 V3) ====="
 );
 
 
 
-
-
-// ===============================
-// AWS S3 UPLOAD CONFIGURATION
-// ===============================
+// =====================================
+// MULTER CONFIGURATION
+// =====================================
 
 
 const upload = multer({
 
-storage:
+    storage: multer.memoryStorage(),
 
-multerS3({
+    limits: {
 
-s3:s3,
+        fileSize: 10 * 1024 * 1024
 
-
-bucket:
-process.env.AWS_BUCKET_NAME,
-
-
-
-metadata:(req,file,cb)=>{
-
-
-cb(null,{
-
-fieldName:
-file.fieldname
-
-});
-
-
-},
-
-
-
-
-key:(req,file,cb)=>{
-
-
-let folder;
-
-
-
-if(file.fieldname==="selfie"){
-
-folder="selfies/";
-
-}
-
-else{
-
-folder="documents/";
-
-}
-
-
-
-
-const fileName =
-
-folder +
-
-Date.now() +
-
-"-" +
-
-file.originalname.replace(/\s+/g,"-");
-
-
-
-cb(null,fileName);
-
-
-
-},
-
-
-
-contentType:
-
-multerS3.AUTO_CONTENT_TYPE
-
-
-
-})
-
+    }
 
 });
 
@@ -126,44 +43,28 @@ multerS3.AUTO_CONTENT_TYPE
 
 
 
-
-
-// ===============================
+// =====================================
 // REGISTRATION
-// ===============================
-
+// =====================================
 
 
 router.post(
 
-
 "/",
-
-
 
 upload.fields([
 
-{
+    {
+        name:"selfie",
+        maxCount:1
+    },
 
-name:"selfie",
-
-maxCount:1
-
-},
-
-
-{
-
-name:"document",
-
-maxCount:1
-
-}
-
+    {
+        name:"document",
+        maxCount:1
+    }
 
 ]),
-
-
 
 
 async(req,res)=>{
@@ -172,12 +73,10 @@ async(req,res)=>{
 try{
 
 
-
 console.log(
 "REGISTRATION BODY:",
 req.body
 );
-
 
 
 console.log(
@@ -187,7 +86,55 @@ req.files
 
 
 
+// =====================================
+// UPLOAD FILES TO AWS S3
+// =====================================
 
+
+let selfieUrl = null;
+
+let documentUrl = null;
+
+
+
+if(req.files?.selfie){
+
+
+    selfieUrl = await uploadToS3(
+
+        req.files.selfie[0],
+
+        "selfies"
+
+    );
+
+
+}
+
+
+
+if(req.files?.document){
+
+
+    documentUrl = await uploadToS3(
+
+        req.files.document[0],
+
+        "documents"
+
+    );
+
+
+}
+
+
+
+
+
+
+// =====================================
+// APPLICATION ID
+// =====================================
 
 
 const applicationID =
@@ -203,20 +150,78 @@ Date.now()
 
 
 
+// =====================================
+// NEXT OF KIN
+// =====================================
 
-const nextOfKin =
 
-JSON.parse(
+let nextOfKin = {};
+
+
+
+try{
+
+
+nextOfKin = JSON.parse(
 
 req.body.nextOfKin || "{}"
 
 );
 
 
+}
+
+catch(error){
+
+
+console.log(
+"NEXT OF KIN JSON ERROR:",
+error.message
+);
+
+
+}
 
 
 
 
+
+
+
+
+// =====================================
+// TEAM ID
+// =====================================
+
+
+let teamID = 3;
+
+
+
+if(req.body.team === "PI_CORE_TEAM"){
+
+teamID = 1;
+
+}
+
+
+else if(req.body.team === "SIDRA_CORE_TEAM"){
+
+teamID = 2;
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// SAVE APPLICATION
+// =====================================
 
 
 const application =
@@ -224,14 +229,9 @@ const application =
 await CoreTeamApplication.create({
 
 
-
-
-
 application_id:
 
 applicationID,
-
-
 
 
 
@@ -241,13 +241,9 @@ req.body.fullName,
 
 
 
-
-
 date_of_birth:
 
 req.body.dob,
-
-
 
 
 
@@ -257,13 +253,9 @@ req.body.gender,
 
 
 
-
-
 country:
 
 req.body.country,
-
-
 
 
 
@@ -273,13 +265,9 @@ req.body.state,
 
 
 
-
-
 address:
 
 req.body.address,
-
-
 
 
 
@@ -289,42 +277,15 @@ req.body.phone,
 
 
 
-
-
 email:
 
 req.body.email,
 
 
 
-
-
 team_id:
 
-req.body.team === "PI_CORE_TEAM"
-
-?
-
-1
-
-
-:
-
-
-req.body.team === "SIDRA_CORE_TEAM"
-
-?
-
-2
-
-
-:
-
-3,
-
-
-
-
+teamID,
 
 
 
@@ -338,11 +299,11 @@ req.body.sidraUsername
 
 ||
 
+req.body.username
+
+||
+
 "",
-
-
-
-
 
 
 
@@ -352,13 +313,9 @@ req.body.role,
 
 
 
-
-
 skills:
 
 req.body.skills,
-
-
 
 
 
@@ -368,59 +325,21 @@ req.body.experience,
 
 
 
-
-
 contribution:
 
 req.body.value,
 
 
 
-
-
-
-
-
-
-// AWS S3 URL
-
 selfie_url:
 
-
-req.files?.selfie
-
-?
-
-req.files.selfie[0].location
-
-:
-
-null,
-
-
-
-
-
+selfieUrl,
 
 
 
 identity_document_url:
 
-
-req.files?.document
-
-?
-
-req.files.document[0].location
-
-:
-
-null,
-
-
-
-
-
+documentUrl,
 
 
 
@@ -430,16 +349,9 @@ nextOfKin,
 
 
 
-
-
-
-
 application_status:
 
 "Pending"
-
-
-
 
 
 });
@@ -450,10 +362,20 @@ application_status:
 
 
 
+console.log(
+
+"APPLICATION SAVED:",
+
+application.application_id
+
+);
+
+
+
+
 
 
 res.json({
-
 
 success:true,
 
@@ -463,14 +385,13 @@ message:
 "Application submitted successfully",
 
 
-
 applicationID:
 
 application.application_id
 
 
-
 });
+
 
 
 
@@ -497,9 +418,7 @@ error
 res.status(500).json({
 
 
-
 success:false,
-
 
 
 message:
@@ -507,24 +426,19 @@ message:
 "Registration failed",
 
 
-
 error:
 
 error.message
 
 
-
 });
 
 
-
 }
 
 
 
 }
-
-
 
 
 
